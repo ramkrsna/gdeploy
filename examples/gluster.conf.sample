@@ -68,7 +68,7 @@
 # under 'hosts' section the second configuration will be used.
 #
 #
-#  Section 'default'
+#  # Section 'default'
 #
 #
 # If the user want to stop setup at a particular step, say, at VG
@@ -86,6 +86,30 @@
 # default values for lvs, pools, mountpoints, etc. and continue taking
 # defaults value for all these.
 #
+#
+#  # Section 'existing'
+#
+# This section allows user to setup backend from already created
+# configurations. For example, If the PVs exist, user can tell gdeploy
+# to skip PV creation and start from VG creation by giving 'pvs' in the
+# 'existing' section. But, 'devices' option should be provided under
+# 'backend-setup' section so that gdeploy would know what to setup it
+# from.
+#
+# Example:
+#
+# [existing]
+# pvs
+# vgs
+#
+# [backend-reset]
+# devices=/dev/sdb
+# vgs=vg1
+#
+# The above config will trigger from thin pool creation.
+#
+#
+# --------
 #
 #      Old/Soon to be deprecated configuration option
 #
