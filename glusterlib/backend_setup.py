@@ -60,6 +60,8 @@ class BackendSetup(YamlWriter):
                 if val.group(2):
                     hosts.append(val.group(2))
         self.bricks = []
+        self.existing = self.config_get_options(self.config,
+                                               'existing', False)
         default = self.config_get_options(self.config,
                                                'default', False)
         if default:
@@ -160,6 +162,7 @@ class BackendSetup(YamlWriter):
         self.section_dict = self.fix_format_of_values_in_config(self.section_dict)
 
     def write_brick_names(self):
+        existing = True if 'pvs' in self.existing else False
         if not self.bricks:
             self.bricks = self.section_dict.get('devices')
         if self.bricks:
@@ -167,14 +170,16 @@ class BackendSetup(YamlWriter):
             self.section_dict['bricks'] = self.bricks
             self.create_yaml_dict('bricks', self.section_dict['bricks'], False)
             self.device_count = len(self.bricks)
-            if 'pvcreate.yml' not in Global.playbooks:
-                Global.playbooks.append('pvcreate.yml')
+            if not existing:
+                if 'pvcreate.yml' not in Global.playbooks:
+                    Global.playbooks.append('pvcreate.yml')
             return True
         else:
             return False
 
     def write_vg_names(self):
-        if not self.write_brick_names():
+        existing = True if 'vgs' in self.existing else False
+        if not self.write_brick_names() and not existing:
             return False
         vgs = self.section_data_gen('vgs', 'Volume Groups')
         if vgs:
@@ -187,14 +192,16 @@ class BackendSetup(YamlWriter):
                 vgnames['vg'] = j
                 data.append(vgnames)
             self.create_yaml_dict('vgnames', data, True)
-            if 'vgcreate.yml' not in Global.playbooks:
-                Global.playbooks.append('vgcreate.yml')
+            if not existing:
+                if 'vgcreate.yml' not in Global.playbooks:
+                    Global.playbooks.append('vgcreate.yml')
             return True
         return False
 
 
     def write_lv_names(self):
-        if not self.write_pool_names():
+        existing = True if 'lvs' in self.existing else False
+        if not self.write_pool_names() and not existing:
             return False
         lvs = self.section_data_gen('lvs', 'Logical Volumes')
         if lvs:
@@ -208,13 +215,15 @@ class BackendSetup(YamlWriter):
                 pools['lv'] = k
                 data.append(pools)
             self.create_yaml_dict('lvpools', data, True)
-            if 'lvcreate.yml' not in Global.playbooks:
-                Global.playbooks.append('lvcreate.yml')
+            if not existing:
+                if 'lvcreate.yml' not in Global.playbooks:
+                    Global.playbooks.append('lvcreate.yml')
             return True
         return False
 
     def write_pool_names(self):
-        if not self.write_vg_names():
+        existing = True if 'pools' in self.existing else False
+        if not self.write_vg_names() and not existing:
             return False
         pools = self.section_data_gen('pools', 'Logical Pools')
         if pools:
@@ -230,7 +239,8 @@ class BackendSetup(YamlWriter):
         return False
 
     def write_lvol_names(self):
-        if not self.write_lv_names():
+        existing = True if 'mountpoints' in self.existing else False
+        if not self.write_lv_names() and not existing:
             return False
         lvols = ['/dev/%s/%s' % (i, j) for i, j in
                                       zip(self.section_dict['vgs'],
@@ -238,13 +248,15 @@ class BackendSetup(YamlWriter):
         if lvols:
             self.section_dict['lvols'] = lvols
             self.create_yaml_dict('lvols', lvols, False)
-            if 'fscreate.yml' not in Global.playbooks:
-                Global.playbooks.append('fscreate.yml')
+            if not existing:
+                if 'fscreate.yml' not in Global.playbooks:
+                    Global.playbooks.append('fscreate.yml')
             return True
         return False
 
     def write_mount_options(self):
-        if not self.write_lvol_names():
+        existing = True if 'mountpoints' in self.existing else False
+        if not self.write_lvol_names() and not existing:
             return False
         self.mountpoints = self.section_data_gen(
                 'mountpoints', 'Mount Point')
@@ -258,8 +270,9 @@ class BackendSetup(YamlWriter):
         self.create_yaml_dict('mntpath', data, True)
         self.modify_mountpoints()
         self.create_yaml_dict('mountpoints', self.mountpoints, False)
-        if 'mount.yml' not in Global.playbooks:
-            Global.playbooks.append('mount.yml')
+        if not existing:
+            if 'mount.yml' not in Global.playbooks:
+                Global.playbooks.append('mount.yml')
         return True
 
 
