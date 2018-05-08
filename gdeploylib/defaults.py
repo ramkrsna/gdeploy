@@ -224,3 +224,4 @@ REPLACE_BRICK = 'gluster-volume-replace-brick.yml'
 # VDO
 VDO_CREATE = 'vdo-create.yml'
 VDO_DELETE = 'vdo-delete.yml'
+DEPLOY_VDO_SERVICE = 'deploy-vdo-service.yml'

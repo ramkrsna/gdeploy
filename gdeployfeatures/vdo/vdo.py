@@ -41,7 +41,7 @@ def vdo_create(section_dict):
         log_yes_no_error(run)
 
     Global.logger.info("Creating vdo volume(s) %s" % vdonames)
-    return section_dict, defaults.VDO_CREATE
+    return section_dict, [defaults.VDO_CREATE, defaults.DEPLOY_VDO_SERVICE]
 
 def vdo_delete(section_dict):
     Global.ignore_errors = section_dict.get('ignore_vdo_errors')

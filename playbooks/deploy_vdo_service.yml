@@ -1,0 +1,22 @@
+---
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: yes
+  vars:
+    target_dir: /etc/systemd/system/multi-user.target.wants/
+
+  tasks:
+  - name: Create a multi user target directory for vdo mounts.
+    file: path="{{ target_dir }}" state=directory
+    when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "7"
+  
+  - name: Add vdo.mount file to existing gluster vdo services
+    template: src=vdo.mount
+              dest = {{ target_dir }}
+    with_item: "{{ mntpath }}"          
+    when: vdo_device is defined and vdo_device|bool = true  
+    
+  - name: Run daemon-reload
+    shell: systemctl daemon-reload
+    when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "7" 
+    
