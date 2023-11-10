@@ -1,3 +1,4 @@
 ansible>=2.4
 Jinja2>=2.9
 PyYAML==3.11
+ansible-core>=2.13.13rc1 # not directly required, pinned by Snyk to avoid a vulnerability
